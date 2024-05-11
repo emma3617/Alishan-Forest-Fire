@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.29/"></script>
+  <title>嘉義縣阿里山森林火災衛星影像處理</title>
+  <style>
+    html,
+    body,
+    #viewDiv2 {
+        height: 100vh;
+        width: 100vw;
+    }
+  </style>
+<script>
+  require([
+    "esri/Map",
+    "esri/views/MapView",
+    "esri/layers/TileLayer",
+    "esri/layers/Layer",
+    "esri/widgets/LayerList",
+    "esri/widgets/Swipe",
+    "esri/widgets/Expand",
+    "esri/widgets/Legend"
+  ], function (Map, MapView, TileLayer, Layer, LayerList, Swipe, Expand, Legend) {
+    const map = new Map({
+      basemap: "satellite"
+    });
+
+
+    const layertemcolor =  new TileLayer({
+      portalItem: {
+        id: "c8a78c89a2b141a683a4f32709773277"
+      },
+      title: "色溫",
+      minScale: 500000,  // 最小比例尺
+      maxScale: 10000    // 最大比例尺
+      
+    });
+    map.add(layertemcolor);
+
+
+    //地圖視窗
+    var view = new MapView({
+      map: map,
+      container: "viewDiv2",
+      zoom: 13,
+      center: [120.73, 23.453702],
+      constraints: {
+        maxZoom: 20,
+        minZoom: 8
+      }
+    });
+
+    //layer控制切換
+    const layerList = new LayerList({
+      view: view
+    });
+    const llExpand = new Expand({
+      view: view,
+      content: layerList,
+      expanded: false
+    });
+    view.ui.add(llExpand, "top-right");
+
+
+    view.watch("zoom", function (newZoom) {
+      if (newZoom >1) {
+        layertemcolor.visible = true;
+      } 
+    });
+
+    const legend = new Legend({
+      view: view,
+      layerInfos: [{
+        layer: layertemcolor,
+        title: "TemColor"  // Optional: Provide a custom title for the legend
+      }]
+    });
+
+    // Optionally use an Expand widget to contain the Legend
+    const legendExpand = new Expand({
+      view: view,
+      content: legend,
+      expandIconClass: "esri-icon-layer-list",  // Use a suitable icon
+      expanded: false,
+      autoCollapse: true
+    });
+
+    view.ui.add(legendExpand, "top-left");
+
+  });
+</script>
+
+</head>
+
+<body>
+    <div id="viewDiv2" ></div>
+</body>
+
+</html>
